@@ -1,5 +1,6 @@
 package com.appointment.domain;
-
+import com.appointment.domain.Equipment;
+import java.util.List;
 /**
  * Abstract base class representing a reservation in the system.
  * All reservation types must extend this class.
@@ -8,6 +9,9 @@ package com.appointment.domain;
  * @version 1.0
  */
 public abstract class Reservation {
+	
+	/** List of equipment requested for this reservation. */
+	private List<Equipment> equipmentRequested;
 
     /** Unique identifier for the reservation */
     private String reservationId;
@@ -121,4 +125,17 @@ public abstract class Reservation {
      * @param reservationType the type to set
      */
     public void setReservationType(String reservationType) { this.reservationType = reservationType; }
+    
+    
+    /**
+     * @return the list of requested equipment
+     */
+    public List<Equipment> getEquipmentRequested() { return equipmentRequested; }
+
+    /**
+     * @param equipmentRequested the equipment list to set
+     */
+    public void setEquipmentRequested(List<Equipment> equipmentRequested) { 
+        this.equipmentRequested = equipmentRequested; 
+    }
 }
