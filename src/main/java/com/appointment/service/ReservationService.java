@@ -35,7 +35,7 @@ public class ReservationService {
      */
     public Reservation book(Reservation reservation, User user) {
         List<BookingRuleStrategy> rules = new ArrayList<>();
-        rules.add(new CapacityRule(reservation.getRoom().getCapacity()));
+        rules.add(new CapacityRule(reservation.getParticipantCount()));
         rules.add(new DurationRule());
         rules.add(new EquipmentAvailabilityRule(reservation.getRoom().getAvailableEquipment()
                 .stream()
