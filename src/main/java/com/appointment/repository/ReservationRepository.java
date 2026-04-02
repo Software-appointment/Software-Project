@@ -1,14 +1,14 @@
 package com.appointment.repository;
 
 import com.appointment.domain.Reservation;
+
 import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Repository for managing reservations in memory.
- * Uses LinkedList as in-memory storage.
+ * In-memory repository for storing and retrieving reservations.
  *
- * @author Student C
+ * @author Student A
  * @version 1.0
  */
 public class ReservationRepository {
@@ -17,7 +17,7 @@ public class ReservationRepository {
     private LinkedList<Reservation> reservations;
 
     /**
-     * Constructor initializes empty reservations list.
+     * Constructs a new empty ReservationRepository.
      */
     public ReservationRepository() {
         this.reservations = new LinkedList<>();
@@ -33,19 +33,10 @@ public class ReservationRepository {
     }
 
     /**
-     * Returns all reservations in the repository.
-     *
-     * @return list of all reservations
-     */
-    public List<Reservation> findAll() {
-        return reservations;
-    }
-
-    /**
      * Finds a reservation by its ID.
      *
      * @param reservationId the ID to search for
-     * @return the reservation if found, null otherwise
+     * @return the matching Reservation, or null if not found
      */
     public Reservation findById(String reservationId) {
         for (Reservation r : reservations) {
@@ -57,11 +48,43 @@ public class ReservationRepository {
     }
 
     /**
+     * Returns all reservations in the system.
+     *
+     * @return list of all reservations
+     */
+    public List<Reservation> findAll() {
+        return reservations;
+    }
+
+    /**
      * Deletes a reservation by its ID.
      *
      * @param reservationId the ID of the reservation to delete
+     * @return true if deleted, false if not found
      */
-    public void delete(String reservationId) {
-        reservations.removeIf(r -> r.getReservationId().equals(reservationId));
+    public boolean delete(String reservationId) {
+        Reservation toDelete = findById(reservationId);
+        if (toDelete != null) {
+            reservations.remove(toDelete);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Updates an existing reservation by replacing it with a new version.
+     *
+     * @param updatedReservation the updated reservation object
+     * @return true if updated, false if not found
+     */
+    public boolean update(Reservation updatedReservation) {
+        for (int i = 0; i < reservations.size(); i++) {
+            if (reservations.get(i).getReservationId()
+                    .equals(updatedReservation.getReservationId())) {
+                reservations.set(i, updatedReservation);
+                return true;
+            }
+        }
+        return false;
     }
 }
