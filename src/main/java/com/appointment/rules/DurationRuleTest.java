@@ -1,13 +1,14 @@
 package com.appointment.rules;
 
-import com.appointment.domain.MeetingRoom;
-import com.appointment.domain.Reservation;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import com.appointment.domain.MeetingRoom;
+import com.appointment.domain.Reservation;
 
 
 public class DurationRuleTest {
