@@ -10,13 +10,6 @@ import com.appointment.rules.EquipmentAvailabilityRule;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Service responsible for managing reservations.
- * Coordinates booking rules and notifications.
- *
- * @author Student B
- * @version 1.0
- */
 public class ReservationService {
 
     /** Repository for storing reservations. */
@@ -25,12 +18,7 @@ public class ReservationService {
     /** Service for sending notifications. */
     private NotificationService notificationService;
 
-    /**
-     * Constructor to create ReservationService.
-     *
-     * @param reservationRepository the repository to store reservations
-     * @param notificationService the service to send notifications
-     */
+    
     public ReservationService(ReservationRepository reservationRepository,
                               NotificationService notificationService) {
         this.reservationRepository = reservationRepository;
@@ -80,5 +68,75 @@ public class ReservationService {
      */
     public List<Reservation> getAll() {
         return reservationRepository.findAll();
+    }
+    /**
+     * Modifies an existing future reservation.
+     * Only future reservations can be modified.
+     *
+     * @param reservationId the ID of the reservation to modify
+     * @param newDate       new date (or null to keep existing)
+     * @param newTime       new time (or null to keep existing)
+     * @param newDuration   new duration in minutes (-1 to keep existing)
+     * @return the updated reservation
+     * @throws IllegalArgumentException if reservation not found or already cancelled/completed
+     */
+    public Reservation modify(String reservationId, String newDate,
+                              String newTime, int newDuration) {
+        Reservation reservation = reservationRepository.findById(reservationId);
+
+        if (reservation == null) {
+            throw new IllegalArgumentException("Reservation not found: " + reservationId);
+        }
+
+        if (reservation.getStatus().equals("Cancelled") ||
+            reservation.getStatus().equals("Completed")) {
+            throw new IllegalArgumentException(
+                "Cannot modify a " + reservation.getStatus() + " reservation"
+            );
+        }
+
+        if (newDate != null) {
+            reservation.setDate(newDate);
+        }
+        if (newTime != null) {
+            reservation.setTime(newTime);
+        }
+        if (newDuration != -1) {
+            reservation.setDuration(newDuration);
+        }
+
+        reservationRepository.update(reservation);
+        return reservation;
+    }
+
+    /**
+     * Cancels an existing reservation and frees the time slot.
+     * Only future (Confirmed) reservations can be cancelled.
+     *
+     * @param reservationId the ID of the reservation to cancel
+     * @param timeSlot      the time slot to free after cancellation
+     * @throws IllegalArgumentException if reservation not found or already cancelled
+     */
+    public void cancel(String reservationId,
+                       com.appointment.domain.TimeSlot timeSlot) {
+        Reservation reservation = reservationRepository.findById(reservationId);
+
+        if (reservation == null) {
+            throw new IllegalArgumentException("Reservation not found: " + reservationId);
+        }
+
+        if (reservation.getStatus().equals("Cancelled")) {
+            throw new IllegalArgumentException("Reservation is already cancelled");
+        }
+
+        if (reservation.getStatus().equals("Completed")) {
+            throw new IllegalArgumentException("Cannot cancel a completed reservation");
+        }
+
+        reservation.setStatus("Cancelled");
+        reservationRepository.update(reservation);
+
+        // Free the time slot
+        timeSlot.setAvailable(true);
     }
 }
