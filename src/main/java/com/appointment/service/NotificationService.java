@@ -9,7 +9,7 @@ import java.util.List;
  * Service responsible for managing and triggering notifications.
  * Uses the Observer Pattern to notify all registered observers.
  *
- * @author Student B
+ * @author Student A
  * @version 1.0
  */
 public class NotificationService {

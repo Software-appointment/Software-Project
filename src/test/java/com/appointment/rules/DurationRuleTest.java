@@ -10,6 +10,13 @@ import org.junit.jupiter.api.Test;
 import com.appointment.domain.MeetingRoom;
 import com.appointment.domain.Reservation;
 
+/**
+ * Unit tests for DurationRule (US2.2).
+ *
+ * @author Student A
+ * @version 1.0
+ */
+
 
 public class DurationRuleTest {
 

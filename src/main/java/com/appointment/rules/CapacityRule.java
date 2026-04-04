@@ -1,6 +1,13 @@
 package com.appointment.rules;
 
 import com.appointment.domain.Reservation;
+/**
+ * Booking rule that validates the room capacity against the number of participants.
+ * Ensures the selected meeting room can accommodate all participants.
+ *
+ * @author Student A
+ * @version 1.0
+ */
 
 
 public class CapacityRule implements BookingRuleStrategy {
@@ -21,7 +28,7 @@ public class CapacityRule implements BookingRuleStrategy {
      * Checks whether the room capacity is sufficient for the number of participants.
      *
      * @param reservation the reservation to validate
-     * @return true if room capacity >= participantCount, false otherwise
+     @return true if room capacity is sufficient for participantCount, false otherwise
      */
     @Override
     public boolean isValid(Reservation reservation) {

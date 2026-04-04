@@ -2,7 +2,13 @@ package com.appointment.rules;
 
 import com.appointment.domain.Reservation;
 
-
+/**
+ * Strategy interface for booking validation rules.
+ * Each rule implementation checks whether a reservation is valid.
+ *
+ * @author Student A
+ * @version 1.0
+ */
 public interface BookingRuleStrategy {
 
     /**

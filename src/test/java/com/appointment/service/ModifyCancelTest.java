@@ -13,6 +13,13 @@ import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Unit tests for modify() and cancel() in ReservationService (US4.1).
+ *
+ * @author Student A
+ * @version 1.0
+ */
+
 
 public class ModifyCancelTest {
 

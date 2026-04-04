@@ -1,9 +1,9 @@
 package com.appointment.domain;
 
 /**
- * Represents a user who can reserve meeting rooms in the system.
+ * Represents a user who can reserve meeting rooms.
  *
- * @author Student C
+ * @author Student A
  * @version 1.0
  */
 public class User {

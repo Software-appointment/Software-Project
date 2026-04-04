@@ -4,11 +4,14 @@ import com.appointment.domain.User;
 
 import java.util.ArrayList;
 import java.util.List;
-
 /**
  * Observer implementation that sends SMS notifications to users.
  * In test mode, records all sent messages instead of sending real SMS.
+ *
+ * @author Student A
+ * @version 1.0
  */
+
 public class SMSNotificationObserver implements Observer {
 
     /** List of sent messages recorded in test mode. */

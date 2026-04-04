@@ -9,7 +9,7 @@ import java.util.List;
  * Repository for managing users and administrators in memory.
  * Uses LinkedList as in-memory storage.
  *
- * @author Student C
+ * @author Student A
  * @version 1.0
  */
 public class UserRepository {

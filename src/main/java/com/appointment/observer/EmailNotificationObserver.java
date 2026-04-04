@@ -4,10 +4,12 @@ import com.appointment.domain.User;
 
 import java.util.ArrayList;
 import java.util.List;
-
 /**
  * Observer implementation that sends email notifications to users.
  * In test mode, records all sent messages instead of sending real emails.
+ *
+ * @author Student A
+ * @version 1.0
  */
 public class EmailNotificationObserver implements Observer {
 

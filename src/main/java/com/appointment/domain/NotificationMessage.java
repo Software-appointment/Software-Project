@@ -3,7 +3,7 @@ package com.appointment.domain;
 /**
  * Represents a notification message sent to users as a reminder.
  *
- * @author Student C
+ * @author Student A
  * @version 1.0
  */
 public class NotificationMessage {

@@ -7,6 +7,13 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Unit tests for AuthService (US1.1 and US1.2).
+ *
+ * @author Student A
+ * @version 1.0
+ */
+
 
 public class AuthServiceTest {
 

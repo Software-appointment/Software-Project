@@ -3,7 +3,7 @@ package com.appointment.domain;
 /**
  * Represents a time slot available for meeting room reservations.
  *
- * @author Student C
+ * @author Student A
  * @version 1.0
  */
 public class TimeSlot {
