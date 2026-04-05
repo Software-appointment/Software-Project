@@ -15,7 +15,7 @@ public class GroupMinParticipantsRule implements BookingRuleStrategy {
      * Checks whether the group reservation has at least 2 participants.
      *
      * @param reservation the reservation to validate
-     @return true if not a group or has at least 2 participants, false otherwise
+     * @return true if not a group or has at least 2 participants, false otherwise
      */
     @Override
     public boolean isValid(Reservation reservation) {
