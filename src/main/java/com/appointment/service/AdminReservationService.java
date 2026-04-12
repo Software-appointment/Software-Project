@@ -2,6 +2,8 @@ package com.appointment.service;
 
 import com.appointment.domain.Administrator;
 import com.appointment.domain.Reservation;
+import com.appointment.domain.User;
+import com.appointment.observer.EmailNotificationObserver;
 import com.appointment.repository.ReservationRepository;
 import com.appointment.repository.UserRepository;
 
@@ -16,6 +18,7 @@ public class AdminReservationService {
 
     private ReservationRepository reservationRepository;
     private UserRepository userRepository;
+    private NotificationService notificationService;
 
     /**
      * Constructor to create AdminReservationService.
@@ -27,6 +30,8 @@ public class AdminReservationService {
                                    UserRepository userRepository) {
         this.reservationRepository = reservationRepository;
         this.userRepository        = userRepository;
+        this.notificationService   = new NotificationService();
+        this.notificationService.addObserver(new EmailNotificationObserver());
     }
 
     /**
@@ -34,8 +39,11 @@ public class AdminReservationService {
      *
      * @param reservationId the ID of the reservation to cancel
      * @param adminUsername the username of the administrator
+     * @param userEmail the email of the user to notify
+     * @param userName the name of the user to notify
      */
-    public void cancelReservation(String reservationId, String adminUsername) {
+    public void cancelReservation(String reservationId, String adminUsername,
+                                  String userEmail, String userName) {
         checkAdminSession(adminUsername);
         Reservation reservation = reservationRepository.findById(reservationId);
         if (reservation == null) {
@@ -43,6 +51,10 @@ public class AdminReservationService {
         }
         reservation.setStatus("Cancelled");
         reservationRepository.update(reservation);
+
+        User user = new User(userName, userName, userEmail, "");
+        notificationService.notifyObservers(user,
+            "Your reservation " + reservationId + " has been cancelled by the administrator.");
     }
 
     /**
@@ -52,9 +64,12 @@ public class AdminReservationService {
      * @param adminUsername the username of the administrator
      * @param newDate the new date for the reservation
      * @param newTime the new time for the reservation
+     * @param userEmail the email of the user to notify
+     * @param userName the name of the user to notify
      */
     public void modifyReservation(String reservationId, String adminUsername,
-                                  String newDate, String newTime) {
+                                  String newDate, String newTime,
+                                  String userEmail, String userName) {
         checkAdminSession(adminUsername);
         Reservation reservation = reservationRepository.findById(reservationId);
         if (reservation == null) {
@@ -67,6 +82,12 @@ public class AdminReservationService {
             reservation.setTime(newTime);
         }
         reservationRepository.update(reservation);
+
+        User user = new User(userName, userName, userEmail, "");
+        notificationService.notifyObservers(user,
+            "Your reservation " + reservationId + " has been modified by the administrator."
+            + (newDate != null ? " New date: " + newDate : "")
+            + (newTime != null ? " New time: " + newTime : ""));
     }
 
     /**

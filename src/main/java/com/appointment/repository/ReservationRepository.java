@@ -98,7 +98,7 @@ public class ReservationRepository {
 
     /**
      * Saves all reservations to the text file.
-     * Format: id|date|time|duration|roomName|type|status
+     * Format: id|date|time|duration|roomName|type|status|userName|userEmail
      */
     private void saveToFile() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH))) {
@@ -110,7 +110,9 @@ public class ReservationRepository {
                     r.getDuration() + "|" +
                     r.getRoom().getRoomName() + "|" +
                     r.getType() + "|" +
-                    r.getStatus()
+                    r.getStatus() + "|" +
+                    (r.getUserName()  != null ? r.getUserName()  : "-") + "|" +
+                    (r.getUserEmail() != null ? r.getUserEmail() : "-")
                 );
                 writer.newLine();
             }
@@ -139,6 +141,8 @@ public class ReservationRepository {
                 String roomName = parts[4];
                 String type     = parts[5];
                 String status   = parts[6];
+                String userName  = parts.length > 7 ? parts[7] : "-";
+                String userEmail = parts.length > 8 ? parts[8] : "-";
 
                 List<Equipment> equipment = new java.util.ArrayList<>();
                 if (roomName.equals("Virtual Room")) {
@@ -159,6 +163,8 @@ public class ReservationRepository {
                     default:           reservation = new IndividualReservation(id, date, time, duration, room); break;
                 }
                 reservation.setStatus(status);
+                reservation.setUserName(userName);
+                reservation.setUserEmail(userEmail);
                 reservations.add(reservation);
             }
         } catch (IOException e) {

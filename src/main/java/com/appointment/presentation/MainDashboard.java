@@ -140,14 +140,14 @@ public class MainDashboard extends JPanel {
         if (isAdmin) {
             switch (idx) {
                 case 0: contentPanel.add(new ViewRoomsScreen(roomService), BorderLayout.CENTER); break;
-                case 1: contentPanel.add(new MyReservationsScreen(reservationService), BorderLayout.CENTER); break;
-                case 2: contentPanel.add(new AdminPanelScreen(adminService, authService, username), BorderLayout.CENTER); break;
+                case 1: contentPanel.add(new MyReservationsScreen(reservationService, username, isAdmin), BorderLayout.CENTER); break;
+                case 2: contentPanel.add(new AdminPanelScreen(adminService, authService, username, reservationService), BorderLayout.CENTER); break;
             }
         } else {
             switch (idx) {
                 case 0: contentPanel.add(new ViewRoomsScreen(roomService), BorderLayout.CENTER); break;
                 case 1: contentPanel.add(new BookRoomScreen(reservationService, roomService, username), BorderLayout.CENTER); break;
-                case 2: contentPanel.add(new MyReservationsScreen(reservationService), BorderLayout.CENTER); break;
+                case 2: contentPanel.add(new MyReservationsScreen(reservationService, username, isAdmin), BorderLayout.CENTER); break;
                 case 3: contentPanel.add(new ModifyCancelScreen(reservationService), BorderLayout.CENTER); break;
             }
         }

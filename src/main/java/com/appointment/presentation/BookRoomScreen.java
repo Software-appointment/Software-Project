@@ -29,6 +29,7 @@ public class BookRoomScreen extends JPanel {
     private String username;
 
     private JTextField userNameField;
+    private JTextField emailField;
     private JTextField dateField;
     private JTextField timeField;
     private JTextField durationField;
@@ -87,8 +88,16 @@ public class BookRoomScreen extends JPanel {
         styleField(userNameField);
         form.add(userNameField, gbc);
 
-        // Date
+        // Email
         gbc.gridx = 0; gbc.gridy = 1;
+        addLabel(form, gbc, "📧 Email:");
+        gbc.gridx = 1;
+        emailField = new JTextField(18);
+        styleField(emailField);
+        form.add(emailField, gbc);
+
+        // Date
+        gbc.gridx = 0; gbc.gridy = 2;
         addLabel(form, gbc, "📅 Date (yyyy-MM-dd):");
         gbc.gridx = 1;
         dateField = new JTextField(18);
@@ -96,7 +105,7 @@ public class BookRoomScreen extends JPanel {
         form.add(dateField, gbc);
 
         // Time
-        gbc.gridx = 0; gbc.gridy = 2;
+        gbc.gridx = 0; gbc.gridy = 3;
         addLabel(form, gbc, "⏰ Time (HH:mm):");
         gbc.gridx = 1;
         timeField = new JTextField(18);
@@ -104,7 +113,7 @@ public class BookRoomScreen extends JPanel {
         form.add(timeField, gbc);
 
         // Duration
-        gbc.gridx = 0; gbc.gridy = 3;
+        gbc.gridx = 0; gbc.gridy = 4;
         addLabel(form, gbc, "⏱️ Duration (30/60/120 min):");
         gbc.gridx = 1;
         durationField = new JTextField(18);
@@ -112,7 +121,7 @@ public class BookRoomScreen extends JPanel {
         form.add(durationField, gbc);
 
         // Type
-        gbc.gridx = 0; gbc.gridy = 4;
+        gbc.gridx = 0; gbc.gridy = 5;
         addLabel(form, gbc, "📋 Reservation Type:");
         gbc.gridx = 1;
         typeCombo = new JComboBox<>(new String[]{
@@ -125,7 +134,7 @@ public class BookRoomScreen extends JPanel {
         form.add(typeCombo, gbc);
 
         // Room
-        gbc.gridx = 0; gbc.gridy = 5;
+        gbc.gridx = 0; gbc.gridy = 6;
         addLabel(form, gbc, "🏠 Room:");
         gbc.gridx = 1;
         roomCombo = new JComboBox<>(new String[]{
@@ -135,8 +144,9 @@ public class BookRoomScreen extends JPanel {
         roomCombo.setForeground(DARK_BLUE);
         roomCombo.setFont(new Font("Arial", Font.PLAIN, 13));
         form.add(roomCombo, gbc);
-     // Catering Service
-        gbc.gridx = 0; gbc.gridy = 6;
+
+        // Catering Service
+        gbc.gridx = 0; gbc.gridy = 7;
         addLabel(form, gbc, "🍽️ Catering Service:");
         gbc.gridx = 1;
         cateringCheckBox = new JCheckBox("Request Catering");
@@ -145,7 +155,7 @@ public class BookRoomScreen extends JPanel {
         cateringCheckBox.setFont(new Font("Arial", Font.BOLD, 13));
         form.add(cateringCheckBox, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 7;
+        gbc.gridx = 0; gbc.gridy = 8;
         addLabel(form, gbc, "🍴 Catering Type:");
         gbc.gridx = 1;
         cateringCombo = new JComboBox<>(new String[]{
@@ -223,13 +233,14 @@ public class BookRoomScreen extends JPanel {
     private void handleBook() {
         try {
             String userName = username;
+            String email    = emailField.getText().trim();
             String date     = dateField.getText().trim();
             String time     = timeField.getText().trim();
             int duration    = Integer.parseInt(durationField.getText().trim());
             String type     = (String) typeCombo.getSelectedItem();
             String roomName = (String) roomCombo.getSelectedItem();
 
-            if (date.isEmpty() || time.isEmpty()) {
+            if (date.isEmpty() || time.isEmpty() || email.isEmpty()) {
                 showError("❌ Please fill all fields.");
                 return;
             }
@@ -240,9 +251,11 @@ public class BookRoomScreen extends JPanel {
             }
 
             MeetingRoom room = new MeetingRoom("R1", roomName, 10, "Medium", equipment);
-            User user = new User(username, userName, username + "@email.com", "0599000000");
+            User user = new User(username, userName, email, "0599000000");
 
             Reservation reservation = createReservation(type, date, time, duration, room);
+            reservation.setUserName(userName);
+            reservation.setUserEmail(email);
             reservationService.book(reservation, user);
             if (cateringCheckBox.isSelected()) {
                 String catering = (String) cateringCombo.getSelectedItem();
@@ -280,6 +293,7 @@ public class BookRoomScreen extends JPanel {
      * Clears all input fields.
      */
     private void clearFields() {
+        emailField.setText("");
         dateField.setText("");
         timeField.setText("");
         durationField.setText("");

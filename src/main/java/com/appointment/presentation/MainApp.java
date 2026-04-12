@@ -6,7 +6,8 @@ import com.appointment.domain.MeetingRoom;
 import com.appointment.repository.RoomRepository;
 import com.appointment.repository.UserRepository;
 import com.appointment.service.AuthService;
-
+import com.appointment.service.NotificationService;
+import com.appointment.observer.EmailNotificationObserver;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -35,6 +36,8 @@ public class MainApp extends JFrame {
         roomRepository = new RoomRepository();
         authService    = new AuthService(userRepository);
         reservationRepository = new ReservationRepository();
+        NotificationService notificationService = new NotificationService();
+        notificationService.addObserver(new EmailNotificationObserver());
         userRepository.addAdministrator(
             new Administrator("A1", "admin", "admin123")
         );

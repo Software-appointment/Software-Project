@@ -21,6 +21,20 @@
       <version>5.10.0</version>
       <scope>test</scope>
     </dependency>
+    
+    <!-- Jakarta Mail — لإرسال الإيميل -->
+<dependency>
+    <groupId>com.sun.mail</groupId>
+    <artifactId>jakarta.mail</artifactId>
+    <version>2.0.1</version>
+</dependency>
+
+<!-- Dotenv — لقراءة الباسوورد من ملف .env -->
+<dependency>
+    <groupId>io.github.cdimascio</groupId>
+    <artifactId>java-dotenv</artifactId>
+    <version>5.2.2</version>
+</dependency>
 
     <!-- Mockito -->
     <dependency>

@@ -1,10 +1,14 @@
 package com.appointment.presentation;
 
+import com.appointment.domain.Reservation;
 import com.appointment.service.AdminReservationService;
 import com.appointment.service.AuthService;
+import com.appointment.service.ReservationService;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.util.List;
 
 /**
  * Screen for administrator-only reservation management.
@@ -15,7 +19,6 @@ import java.awt.*;
  */
 public class AdminPanelScreen extends JPanel {
 
-    /** Colors */
     private static final Color BLUE      = new Color(66, 165, 245);
     private static final Color YELLOW    = new Color(253, 216, 53);
     private static final Color GREEN     = new Color(102, 187, 106);
@@ -24,13 +27,17 @@ public class AdminPanelScreen extends JPanel {
     private static final Color DARK_BLUE = new Color(13, 71, 161);
 
     private AdminReservationService adminService;
+    private ReservationService reservationService;
     private AuthService authService;
     private String adminUsername;
 
     private JTextField idField;
+    private JTextField userEmailField;
+    private JTextField userNameField;
     private JTextField dateField;
     private JTextField timeField;
     private JLabel statusLabel;
+    private DefaultTableModel tableModel;
 
     /**
      * Constructor for AdminPanelScreen.
@@ -45,6 +52,27 @@ public class AdminPanelScreen extends JPanel {
         this.adminService   = adminService;
         this.authService    = authService;
         this.adminUsername  = adminUsername;
+        setBackground(BG);
+        setLayout(new BorderLayout(10, 10));
+        buildUI();
+    }
+
+    /**
+     * Constructor with ReservationService to load reservations table.
+     *
+     * @param adminService the admin reservation service
+     * @param authService the authentication service
+     * @param adminUsername the logged-in admin username
+     * @param reservationService the reservation service
+     */
+    public AdminPanelScreen(AdminReservationService adminService,
+                             AuthService authService,
+                             String adminUsername,
+                             ReservationService reservationService) {
+        this.adminService        = adminService;
+        this.authService         = authService;
+        this.adminUsername       = adminUsername;
+        this.reservationService  = reservationService;
         setBackground(BG);
         setLayout(new BorderLayout(10, 10));
         buildUI();
@@ -68,62 +96,98 @@ public class AdminPanelScreen extends JPanel {
         header.add(adminLabel, BorderLayout.EAST);
         add(header, BorderLayout.NORTH);
 
+        // Table of reservations
+        String[] columns = {"Reservation ID", "User Name", "User Email", "Date", "Time", "Type", "Status"};
+        tableModel = new DefaultTableModel(columns, 0) {
+            @Override public boolean isCellEditable(int r, int c) { return false; }
+        };
+        JTable table = new JTable(tableModel);
+        table.setFont(new Font("Arial", Font.PLAIN, 12));
+        table.setRowHeight(24);
+        table.getTableHeader().setFont(new Font("Arial", Font.BOLD, 12));
+        table.getTableHeader().setBackground(BLUE);
+        table.getTableHeader().setForeground(Color.WHITE);
+        table.setSelectionBackground(new Color(227, 242, 253));
+        table.setSelectionForeground(DARK_BLUE);
+
+        // Click on row → fill fields
+        table.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting() && table.getSelectedRow() != -1) {
+                int row = table.getSelectedRow();
+                idField.setText((String) tableModel.getValueAt(row, 0));
+                userNameField.setText((String) tableModel.getValueAt(row, 1));
+                userEmailField.setText((String) tableModel.getValueAt(row, 2));
+            }
+        });
+
+        loadTable();
+
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setPreferredSize(new Dimension(800, 140));
+        scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
+
         // Form
         JPanel form = new JPanel(new GridBagLayout());
         form.setBackground(BG);
-        form.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
+        form.setBorder(BorderFactory.createEmptyBorder(10, 30, 10, 30));
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(8, 8, 8, 8);
+        gbc.insets = new Insets(6, 8, 6, 8);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         // Info label
         gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
-        JLabel infoLabel = new JLabel("🔐 Admin-only: Modify or cancel any reservation");
+        JLabel infoLabel = new JLabel("🔐 Select a reservation from the table or enter ID manually");
         infoLabel.setFont(new Font("Arial", Font.ITALIC, 12));
-        infoLabel.setForeground(new Color(66, 165, 245));
+        infoLabel.setForeground(BLUE);
         form.add(infoLabel, gbc);
         gbc.gridwidth = 1;
 
         // Reservation ID
         gbc.gridx = 0; gbc.gridy = 1;
-        JLabel idLabel = new JLabel("🔍 Reservation ID:");
-        idLabel.setFont(new Font("Arial", Font.BOLD, 13));
-        idLabel.setForeground(DARK_BLUE);
-        form.add(idLabel, gbc);
-
+        addLabel(form, gbc, "🔍 Reservation ID:");
         gbc.gridx = 1;
         idField = new JTextField(20);
-        idField.setFont(new Font("Arial", Font.PLAIN, 13));
-        idField.setBorder(BorderFactory.createLineBorder(BLUE, 2));
+        styleField(idField);
         form.add(idField, gbc);
 
-        // New Date
+        // User Name
         gbc.gridx = 0; gbc.gridy = 2;
-        JLabel dateLabel = new JLabel("📅 New Date (yyyy-MM-dd):");
-        dateLabel.setFont(new Font("Arial", Font.BOLD, 13));
-        dateLabel.setForeground(DARK_BLUE);
-        form.add(dateLabel, gbc);
+        addLabel(form, gbc, "👤 User Name:");
+        gbc.gridx = 1;
+        userNameField = new JTextField(20);
+        styleField(userNameField);
+        form.add(userNameField, gbc);
 
+        // User Email
+        gbc.gridx = 0; gbc.gridy = 3;
+        addLabel(form, gbc, "📧 User Email:");
+        gbc.gridx = 1;
+        userEmailField = new JTextField(20);
+        styleField(userEmailField);
+        form.add(userEmailField, gbc);
+
+        // New Date
+        gbc.gridx = 0; gbc.gridy = 4;
+        addLabel(form, gbc, "📅 New Date (yyyy-MM-dd):");
         gbc.gridx = 1;
         dateField = new JTextField(20);
-        dateField.setFont(new Font("Arial", Font.PLAIN, 13));
-        dateField.setBorder(BorderFactory.createLineBorder(BLUE, 2));
+        styleField(dateField);
         form.add(dateField, gbc);
 
         // New Time
-        gbc.gridx = 0; gbc.gridy = 3;
-        JLabel timeLabel = new JLabel("⏰ New Time (HH:mm):");
-        timeLabel.setFont(new Font("Arial", Font.BOLD, 13));
-        timeLabel.setForeground(DARK_BLUE);
-        form.add(timeLabel, gbc);
-
+        gbc.gridx = 0; gbc.gridy = 5;
+        addLabel(form, gbc, "⏰ New Time (HH:mm):");
         gbc.gridx = 1;
         timeField = new JTextField(20);
-        timeField.setFont(new Font("Arial", Font.PLAIN, 13));
-        timeField.setBorder(BorderFactory.createLineBorder(BLUE, 2));
+        styleField(timeField);
         form.add(timeField, gbc);
 
-        add(form, BorderLayout.CENTER);
+        // Center panel = table + form
+        JPanel centerPanel = new JPanel(new BorderLayout());
+        centerPanel.setBackground(BG);
+        centerPanel.add(scrollPane, BorderLayout.NORTH);
+        centerPanel.add(form, BorderLayout.CENTER);
+        add(centerPanel, BorderLayout.CENTER);
 
         // Status label
         statusLabel = new JLabel(" ");
@@ -150,17 +214,17 @@ public class AdminPanelScreen extends JPanel {
         cancelBtn.setBorderPainted(false);
         cancelBtn.addActionListener(e -> handleCancel());
 
-        JButton clearBtn = new JButton("🔄 Clear");
-        clearBtn.setBackground(BLUE);
-        clearBtn.setForeground(Color.WHITE);
-        clearBtn.setFont(new Font("Arial", Font.BOLD, 13));
-        clearBtn.setFocusPainted(false);
-        clearBtn.setBorderPainted(false);
-        clearBtn.addActionListener(e -> clearFields());
+        JButton refreshBtn = new JButton("🔄 Refresh");
+        refreshBtn.setBackground(BLUE);
+        refreshBtn.setForeground(Color.WHITE);
+        refreshBtn.setFont(new Font("Arial", Font.BOLD, 13));
+        refreshBtn.setFocusPainted(false);
+        refreshBtn.setBorderPainted(false);
+        refreshBtn.addActionListener(e -> { loadTable(); clearFields(); });
 
         btnPanel.add(modifyBtn);
         btnPanel.add(cancelBtn);
-        btnPanel.add(clearBtn);
+        btnPanel.add(refreshBtn);
 
         JPanel southPanel = new JPanel(new BorderLayout());
         southPanel.setBackground(BG);
@@ -170,23 +234,66 @@ public class AdminPanelScreen extends JPanel {
     }
 
     /**
+     * Loads all reservations into the table.
+     */
+    private void loadTable() {
+        tableModel.setRowCount(0);
+        if (reservationService == null) return;
+        List<Reservation> list = reservationService.getAll();
+        for (Reservation r : list) {
+            tableModel.addRow(new Object[]{
+                r.getReservationId(),
+                r.getUserName()  != null ? r.getUserName()  : "-",
+                r.getUserEmail() != null ? r.getUserEmail() : "-",
+                r.getDate(),
+                r.getTime(),
+                r.getType(),
+                r.getStatus()
+            });
+        }
+    }
+
+    /**
+     * Adds a styled label to the form.
+     */
+    private void addLabel(JPanel panel, GridBagConstraints gbc, String text) {
+        JLabel label = new JLabel(text);
+        label.setFont(new Font("Arial", Font.BOLD, 13));
+        label.setForeground(DARK_BLUE);
+        panel.add(label, gbc);
+    }
+
+    /**
+     * Styles a text field.
+     */
+    private void styleField(JTextField field) {
+        field.setFont(new Font("Arial", Font.PLAIN, 13));
+        field.setBorder(BorderFactory.createLineBorder(BLUE, 2));
+    }
+
+    /**
      * Handles the admin modify action.
      */
     private void handleModify() {
-        String id   = idField.getText().trim();
-        String date = dateField.getText().trim();
-        String time = timeField.getText().trim();
+        String id        = idField.getText().trim();
+        String userName  = userNameField.getText().trim();
+        String userEmail = userEmailField.getText().trim();
+        String date      = dateField.getText().trim();
+        String time      = timeField.getText().trim();
 
-        if (id.isEmpty()) {
-            showError("❌ Please enter a Reservation ID.");
+        if (id.isEmpty() || userEmail.isEmpty() || userName.isEmpty()) {
+            showError("❌ Please select a reservation or enter ID, Name, and Email.");
             return;
         }
 
         try {
             adminService.modifyReservation(id, adminUsername,
                 date.isEmpty() ? null : date,
-                time.isEmpty() ? null : time);
-            showSuccess("✅ Reservation modified by admin successfully!");
+                time.isEmpty() ? null : time,
+                userEmail, userName);
+            showSuccess("✅ Reservation modified successfully!");
+            loadTable();
+            clearFields();
         } catch (Exception ex) {
             showError("❌ " + ex.getMessage());
         }
@@ -196,15 +303,20 @@ public class AdminPanelScreen extends JPanel {
      * Handles the admin cancel action.
      */
     private void handleCancel() {
-        String id = idField.getText().trim();
-        if (id.isEmpty()) {
-            showError("❌ Please enter a Reservation ID.");
+        String id        = idField.getText().trim();
+        String userName  = userNameField.getText().trim();
+        String userEmail = userEmailField.getText().trim();
+
+        if (id.isEmpty() || userEmail.isEmpty() || userName.isEmpty()) {
+            showError("❌ Please select a reservation or enter ID, Name, and Email.");
             return;
         }
 
         try {
-            adminService.cancelReservation(id, adminUsername);
-            showSuccess("✅ Reservation cancelled by admin successfully!");
+            adminService.cancelReservation(id, adminUsername, userEmail, userName);
+            showSuccess("✅ Reservation cancelled successfully!");
+            loadTable();
+            clearFields();
         } catch (Exception ex) {
             showError("❌ " + ex.getMessage());
         }
@@ -215,6 +327,8 @@ public class AdminPanelScreen extends JPanel {
      */
     private void clearFields() {
         idField.setText("");
+        userNameField.setText("");
+        userEmailField.setText("");
         dateField.setText("");
         timeField.setText("");
         statusLabel.setText(" ");
@@ -222,8 +336,6 @@ public class AdminPanelScreen extends JPanel {
 
     /**
      * Shows a success message.
-     *
-     * @param message the message to display
      */
     private void showSuccess(String message) {
         statusLabel.setForeground(new Color(27, 94, 32));
@@ -232,8 +344,6 @@ public class AdminPanelScreen extends JPanel {
 
     /**
      * Shows an error message.
-     *
-     * @param message the message to display
      */
     private void showError(String message) {
         statusLabel.setForeground(new Color(136, 14, 79));

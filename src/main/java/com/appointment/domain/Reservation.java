@@ -9,7 +9,7 @@ import java.util.List;
  * @version 1.0
  */
 public abstract class Reservation {
-	
+
     /** List of equipment requested for this reservation. */
     private List<Equipment> equipmentRequested;
     /** Unique identifier for the reservation */
@@ -28,6 +28,10 @@ public abstract class Reservation {
     private String reservationType;
     /** Number of participants in the reservation */
     private int participantCount;
+    /** Name of the user who made the reservation */
+    private String userName;
+    /** Email of the user who made the reservation */
+    private String userEmail;
 
     public Reservation(String reservationId, String date, String time, int duration, MeetingRoom room) {
         this.reservationId = reservationId;
@@ -54,11 +58,15 @@ public abstract class Reservation {
     public String getReservationType() { return reservationType; }
     public void setReservationType(String reservationType) { this.reservationType = reservationType; }
     public List<Equipment> getEquipmentRequested() { return equipmentRequested; }
-    public void setEquipmentRequested(List<Equipment> equipmentRequested) { 
-        this.equipmentRequested = equipmentRequested; 
+    public void setEquipmentRequested(List<Equipment> equipmentRequested) {
+        this.equipmentRequested = equipmentRequested;
     }
     public int getParticipantCount() { return participantCount; }
-    public void setParticipantCount(int participantCount) { 
-        this.participantCount = participantCount; 
+    public void setParticipantCount(int participantCount) {
+        this.participantCount = participantCount;
     }
+    public String getUserName() { return userName; }
+    public void setUserName(String userName) { this.userName = userName; }
+    public String getUserEmail() { return userEmail; }
+    public void setUserEmail(String userEmail) { this.userEmail = userEmail; }
 }
