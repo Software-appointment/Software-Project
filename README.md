@@ -52,7 +52,7 @@ EMAIL_PASSWORD=your_app_password
 2. Open in Eclipse as Maven project
 3. Run `mvn test` to execute all tests
 4. Run `mvn javadoc:javadoc` for Javadoc report
-5. Run the GUI from `Main.java` in `com.appointment.presentation`
+5. Run the GUI from `MainApp.java` in `com.appointment.presentation`
 
 ## Test Coverage
 - Total: 93% (JaCoCo)
