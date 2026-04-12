@@ -16,10 +16,10 @@ A Java-based Meeting Room Reservation System built with Maven, JUnit 5, Mockito,
 
 ## Architecture
 Layered N-Tier Architecture:
-- Presentation Layer (JavaFX GUI)
+- Presentation Layer (Swing GUI)
 - Service Layer
 - Domain Layer
-- Repository Layer (In-Memory)
+- Repository Layer (File-based storage)
 
 ## Design Patterns
 - Strategy Pattern – Booking Rules
