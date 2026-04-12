@@ -1,0 +1,2 @@
+RES-803|||60|Medium Room|INDIVIDUAL|Cancelled
+RES-226|2026-12-02|10:00|120|Small Room|INDIVIDUAL|Confirmed
