@@ -1,7 +1,6 @@
 package com.appointment.repository;
 
 import com.appointment.domain.Reservation;
-
 import java.util.LinkedList;
 import java.util.List;
 
@@ -72,7 +71,7 @@ public class ReservationRepository {
     }
 
     /**
-     * Updates an existing reservation by replacing it with a new version.
+     * Updates an existing reservation.
      *
      * @param updatedReservation the updated reservation object
      * @return true if updated, false if not found

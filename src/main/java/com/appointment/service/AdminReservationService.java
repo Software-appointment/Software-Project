@@ -14,10 +14,7 @@ import com.appointment.repository.UserRepository;
  */
 public class AdminReservationService {
 
-    /** Repository for accessing reservations. */
     private ReservationRepository reservationRepository;
-
-    /** Repository for accessing administrators. */
     private UserRepository userRepository;
 
     /**
@@ -37,8 +34,6 @@ public class AdminReservationService {
      *
      * @param reservationId the ID of the reservation to cancel
      * @param adminUsername the username of the administrator
-     * @throws IllegalStateException if admin is not logged in
-     * @throws IllegalArgumentException if reservation not found
      */
     public void cancelReservation(String reservationId, String adminUsername) {
         checkAdminSession(adminUsername);
@@ -47,6 +42,7 @@ public class AdminReservationService {
             throw new IllegalArgumentException("Reservation not found: " + reservationId);
         }
         reservation.setStatus("Cancelled");
+        reservationRepository.update(reservation);
     }
 
     /**
@@ -56,8 +52,6 @@ public class AdminReservationService {
      * @param adminUsername the username of the administrator
      * @param newDate the new date for the reservation
      * @param newTime the new time for the reservation
-     * @throws IllegalStateException if admin is not logged in
-     * @throws IllegalArgumentException if reservation not found
      */
     public void modifyReservation(String reservationId, String adminUsername,
                                   String newDate, String newTime) {
@@ -66,15 +60,19 @@ public class AdminReservationService {
         if (reservation == null) {
             throw new IllegalArgumentException("Reservation not found: " + reservationId);
         }
-        reservation.setDate(newDate);
-        reservation.setTime(newTime);
+        if (newDate != null && !newDate.isEmpty()) {
+            reservation.setDate(newDate);
+        }
+        if (newTime != null && !newTime.isEmpty()) {
+            reservation.setTime(newTime);
+        }
+        reservationRepository.update(reservation);
     }
 
     /**
      * Checks if the administrator is logged in.
      *
      * @param adminUsername the username to check
-     * @throws IllegalStateException if admin is not logged in
      */
     private void checkAdminSession(String adminUsername) {
         Administrator admin = userRepository.findAdminByUsername(adminUsername);

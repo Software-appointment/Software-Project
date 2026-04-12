@@ -1,0 +1,242 @@
+package com.appointment.presentation;
+
+import com.appointment.service.AdminReservationService;
+import com.appointment.service.AuthService;
+
+import javax.swing.*;
+import java.awt.*;
+
+/**
+ * Screen for administrator-only reservation management.
+ * Allows admin to modify or cancel any reservation.
+ *
+ * @author Student C
+ * @version 1.0
+ */
+public class AdminPanelScreen extends JPanel {
+
+    /** Colors */
+    private static final Color BLUE      = new Color(66, 165, 245);
+    private static final Color YELLOW    = new Color(253, 216, 53);
+    private static final Color GREEN     = new Color(102, 187, 106);
+    private static final Color PINK      = new Color(244, 143, 177);
+    private static final Color BG        = new Color(248, 251, 255);
+    private static final Color DARK_BLUE = new Color(13, 71, 161);
+
+    private AdminReservationService adminService;
+    private AuthService authService;
+    private String adminUsername;
+
+    private JTextField idField;
+    private JTextField dateField;
+    private JTextField timeField;
+    private JLabel statusLabel;
+
+    /**
+     * Constructor for AdminPanelScreen.
+     *
+     * @param adminService the admin reservation service
+     * @param authService the authentication service
+     * @param adminUsername the logged-in admin username
+     */
+    public AdminPanelScreen(AdminReservationService adminService,
+                             AuthService authService,
+                             String adminUsername) {
+        this.adminService   = adminService;
+        this.authService    = authService;
+        this.adminUsername  = adminUsername;
+        setBackground(BG);
+        setLayout(new BorderLayout(10, 10));
+        buildUI();
+    }
+
+    /**
+     * Builds the UI components.
+     */
+    private void buildUI() {
+        // Header
+        JPanel header = new JPanel(new BorderLayout());
+        header.setBackground(YELLOW);
+        header.setBorder(BorderFactory.createEmptyBorder(14, 20, 14, 20));
+        JLabel title = new JLabel("⚙️ Admin Panel");
+        title.setFont(new Font("Arial", Font.BOLD, 16));
+        title.setForeground(DARK_BLUE);
+        JLabel adminLabel = new JLabel("👤 " + adminUsername);
+        adminLabel.setFont(new Font("Arial", Font.PLAIN, 13));
+        adminLabel.setForeground(DARK_BLUE);
+        header.add(title, BorderLayout.WEST);
+        header.add(adminLabel, BorderLayout.EAST);
+        add(header, BorderLayout.NORTH);
+
+        // Form
+        JPanel form = new JPanel(new GridBagLayout());
+        form.setBackground(BG);
+        form.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(8, 8, 8, 8);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        // Info label
+        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
+        JLabel infoLabel = new JLabel("🔐 Admin-only: Modify or cancel any reservation");
+        infoLabel.setFont(new Font("Arial", Font.ITALIC, 12));
+        infoLabel.setForeground(new Color(66, 165, 245));
+        form.add(infoLabel, gbc);
+        gbc.gridwidth = 1;
+
+        // Reservation ID
+        gbc.gridx = 0; gbc.gridy = 1;
+        JLabel idLabel = new JLabel("🔍 Reservation ID:");
+        idLabel.setFont(new Font("Arial", Font.BOLD, 13));
+        idLabel.setForeground(DARK_BLUE);
+        form.add(idLabel, gbc);
+
+        gbc.gridx = 1;
+        idField = new JTextField(20);
+        idField.setFont(new Font("Arial", Font.PLAIN, 13));
+        idField.setBorder(BorderFactory.createLineBorder(BLUE, 2));
+        form.add(idField, gbc);
+
+        // New Date
+        gbc.gridx = 0; gbc.gridy = 2;
+        JLabel dateLabel = new JLabel("📅 New Date (yyyy-MM-dd):");
+        dateLabel.setFont(new Font("Arial", Font.BOLD, 13));
+        dateLabel.setForeground(DARK_BLUE);
+        form.add(dateLabel, gbc);
+
+        gbc.gridx = 1;
+        dateField = new JTextField(20);
+        dateField.setFont(new Font("Arial", Font.PLAIN, 13));
+        dateField.setBorder(BorderFactory.createLineBorder(BLUE, 2));
+        form.add(dateField, gbc);
+
+        // New Time
+        gbc.gridx = 0; gbc.gridy = 3;
+        JLabel timeLabel = new JLabel("⏰ New Time (HH:mm):");
+        timeLabel.setFont(new Font("Arial", Font.BOLD, 13));
+        timeLabel.setForeground(DARK_BLUE);
+        form.add(timeLabel, gbc);
+
+        gbc.gridx = 1;
+        timeField = new JTextField(20);
+        timeField.setFont(new Font("Arial", Font.PLAIN, 13));
+        timeField.setBorder(BorderFactory.createLineBorder(BLUE, 2));
+        form.add(timeField, gbc);
+
+        add(form, BorderLayout.CENTER);
+
+        // Status label
+        statusLabel = new JLabel(" ");
+        statusLabel.setFont(new Font("Arial", Font.BOLD, 13));
+        statusLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+        // Buttons
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        btnPanel.setBackground(BG);
+
+        JButton modifyBtn = new JButton("✅ Modify");
+        modifyBtn.setBackground(GREEN);
+        modifyBtn.setForeground(new Color(27, 94, 32));
+        modifyBtn.setFont(new Font("Arial", Font.BOLD, 13));
+        modifyBtn.setFocusPainted(false);
+        modifyBtn.setBorderPainted(false);
+        modifyBtn.addActionListener(e -> handleModify());
+
+        JButton cancelBtn = new JButton("❌ Cancel Reservation");
+        cancelBtn.setBackground(PINK);
+        cancelBtn.setForeground(new Color(136, 14, 79));
+        cancelBtn.setFont(new Font("Arial", Font.BOLD, 13));
+        cancelBtn.setFocusPainted(false);
+        cancelBtn.setBorderPainted(false);
+        cancelBtn.addActionListener(e -> handleCancel());
+
+        JButton clearBtn = new JButton("🔄 Clear");
+        clearBtn.setBackground(BLUE);
+        clearBtn.setForeground(Color.WHITE);
+        clearBtn.setFont(new Font("Arial", Font.BOLD, 13));
+        clearBtn.setFocusPainted(false);
+        clearBtn.setBorderPainted(false);
+        clearBtn.addActionListener(e -> clearFields());
+
+        btnPanel.add(modifyBtn);
+        btnPanel.add(cancelBtn);
+        btnPanel.add(clearBtn);
+
+        JPanel southPanel = new JPanel(new BorderLayout());
+        southPanel.setBackground(BG);
+        southPanel.add(statusLabel, BorderLayout.NORTH);
+        southPanel.add(btnPanel, BorderLayout.CENTER);
+        add(southPanel, BorderLayout.SOUTH);
+    }
+
+    /**
+     * Handles the admin modify action.
+     */
+    private void handleModify() {
+        String id   = idField.getText().trim();
+        String date = dateField.getText().trim();
+        String time = timeField.getText().trim();
+
+        if (id.isEmpty()) {
+            showError("❌ Please enter a Reservation ID.");
+            return;
+        }
+
+        try {
+            adminService.modifyReservation(id, adminUsername,
+                date.isEmpty() ? null : date,
+                time.isEmpty() ? null : time);
+            showSuccess("✅ Reservation modified by admin successfully!");
+        } catch (Exception ex) {
+            showError("❌ " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Handles the admin cancel action.
+     */
+    private void handleCancel() {
+        String id = idField.getText().trim();
+        if (id.isEmpty()) {
+            showError("❌ Please enter a Reservation ID.");
+            return;
+        }
+
+        try {
+            adminService.cancelReservation(id, adminUsername);
+            showSuccess("✅ Reservation cancelled by admin successfully!");
+        } catch (Exception ex) {
+            showError("❌ " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Clears all input fields.
+     */
+    private void clearFields() {
+        idField.setText("");
+        dateField.setText("");
+        timeField.setText("");
+        statusLabel.setText(" ");
+    }
+
+    /**
+     * Shows a success message.
+     *
+     * @param message the message to display
+     */
+    private void showSuccess(String message) {
+        statusLabel.setForeground(new Color(27, 94, 32));
+        statusLabel.setText(message);
+    }
+
+    /**
+     * Shows an error message.
+     *
+     * @param message the message to display
+     */
+    private void showError(String message) {
+        statusLabel.setForeground(new Color(136, 14, 79));
+        statusLabel.setText(message);
+    }
+}
