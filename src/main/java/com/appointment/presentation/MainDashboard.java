@@ -42,7 +42,7 @@ public class MainDashboard extends JPanel {
         UserRepository userRepo          = mainApp.getUserRepository();
         ReservationRepository resRepo = mainApp.getReservationRepository();
         NotificationService notifService = new NotificationService();
-
+        notifService.addObserver(new com.appointment.observer.EmailNotificationObserver());
         this.reservationService = new ReservationService(resRepo, notifService);
         this.roomService        = new RoomService(mainApp.getRoomRepository());
         this.authService        = new AuthService(userRepo);
