@@ -1,5 +1,10 @@
 # Meeting Room Reservation System
 
+## Team Members
+- Mira Halawa
+- Jana Kharma  
+- Sadeel Khuffash
+
 A Java-based Meeting Room Reservation System built with Maven, JUnit 5, Mockito, and JaCoCo.
 
 ## Team
@@ -24,6 +29,23 @@ Layered N-Tier Architecture:
 ## Design Patterns
 - Strategy Pattern – Booking Rules
 - Observer Pattern – Notifications
+
+## Email Notification Setup
+
+To enable real email notifications, create a file at:
+`src/main/resources/.env`
+
+With the following content:
+
+EMAIL_USERNAME=your_gmail@gmail.com
+EMAIL_PASSWORD=your_app_password
+
+### Steps to get Gmail App Password:
+1. Go to myaccount.google.com/security
+2. Enable 2-Step Verification
+3. Go to myaccount.google.com/apppasswords
+4. Create a new app password named "JavaMail"
+5. Copy the 16-character password into the .env file
 
 ## How to Run
 1. Clone the repository
