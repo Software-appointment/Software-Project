@@ -1,2 +1,3 @@
 /target/
 reservations.txt 
+src/main/resources/.env 
