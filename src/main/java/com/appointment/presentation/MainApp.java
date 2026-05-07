@@ -1,15 +1,20 @@
 package com.appointment.presentation;
-import com.appointment.repository.ReservationRepository;
+
 import com.appointment.domain.Administrator;
 import com.appointment.domain.Equipment;
 import com.appointment.domain.MeetingRoom;
+import com.appointment.observer.EmailNotificationObserver;
+import com.appointment.repository.ReservationRepository;
 import com.appointment.repository.RoomRepository;
 import com.appointment.repository.UserRepository;
 import com.appointment.service.AuthService;
 import com.appointment.service.NotificationService;
-import com.appointment.observer.EmailNotificationObserver;
-import javax.swing.*;
-import java.awt.*;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import java.awt.CardLayout;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,31 +27,60 @@ import java.util.List;
  */
 public class MainApp extends JFrame {
 
+    private static final long serialVersionUID = 1L;
+
     private static final Color BG = new Color(248, 251, 255);
 
-    private AuthService authService;
-    private UserRepository userRepository;
-    private RoomRepository roomRepository;
+    private transient AuthService authService;
+    private transient UserRepository userRepository;
+    private transient RoomRepository roomRepository;
+    private transient ReservationRepository reservationRepository;
+
     private JPanel mainPanel;
     private CardLayout cardLayout;
-    private ReservationRepository reservationRepository;
 
     public MainApp() {
         userRepository = new UserRepository();
         roomRepository = new RoomRepository();
-        authService    = new AuthService(userRepository);
         reservationRepository = new ReservationRepository();
+        authService = new AuthService(userRepository);
+
         NotificationService notificationService = new NotificationService();
         notificationService.addObserver(new EmailNotificationObserver());
-        userRepository.addAdministrator(
-            new Administrator("A1", "admin", "admin123")
-        );
 
-        Equipment projector  = new Equipment("E1", "Projector", true);
-        Equipment videoConf  = new Equipment("E2", "Video Conference System", true);
+        addDefaultAdmin();
+        addDefaultRooms();
+
+        setTitle("Meeting Room Reservation System");
+        setSize(900, 650);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        getContentPane().setBackground(BG);
+
+        cardLayout = new CardLayout();
+        mainPanel = new JPanel(cardLayout);
+
+        LoginScreen loginScreen = new LoginScreen(authService, this);
+        mainPanel.add(loginScreen, "LOGIN");
+
+        add(mainPanel);
+        cardLayout.show(mainPanel, "LOGIN");
+
+        setVisible(true);
+    }
+
+    private void addDefaultAdmin() {
+        userRepository.addAdministrator(
+                new Administrator("A1", "admin", "admin123")
+        );
+    }
+
+    private void addDefaultRooms() {
+        Equipment projector = new Equipment("E1", "Projector", true);
+        Equipment videoConf = new Equipment("E2", "Video Conference System", true);
         Equipment whiteboard = new Equipment("E3", "Whiteboard", true);
 
-        List<Equipment> smallEq  = new ArrayList<>();
+        List<Equipment> smallEq = new ArrayList<>();
         smallEq.add(projector);
         smallEq.add(whiteboard);
 
@@ -62,26 +96,10 @@ public class MainApp extends JFrame {
         largeEq.add(whiteboard);
         largeEq.add(videoConf);
 
-        roomRepository.save(new MeetingRoom("R1", "Small Room",       5,  "Small",  smallEq));
-        roomRepository.save(new MeetingRoom("R2", "Medium Room",      10, "Medium", mediumEq));
-        roomRepository.save(new MeetingRoom("R3", "Large Conference", 20, "Large",  largeEq));
-        roomRepository.save(new MeetingRoom("R4", "Virtual Room",     10, "Medium", virtualEq));
-
-        setTitle("Meeting Room Reservation System");
-        setSize(900, 650);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-        getContentPane().setBackground(BG);
-
-        cardLayout = new CardLayout();
-        mainPanel  = new JPanel(cardLayout);
-
-        LoginScreen loginScreen = new LoginScreen(authService, this);
-        mainPanel.add(loginScreen, "LOGIN");
-
-        add(mainPanel);
-        cardLayout.show(mainPanel, "LOGIN");
-        setVisible(true);
+        roomRepository.save(new MeetingRoom("R1", "Small Room", 5, "Small", smallEq));
+        roomRepository.save(new MeetingRoom("R2", "Medium Room", 10, "Medium", mediumEq));
+        roomRepository.save(new MeetingRoom("R3", "Large Conference", 20, "Large", largeEq));
+        roomRepository.save(new MeetingRoom("R4", "Virtual Room", 10, "Medium", virtualEq));
     }
 
     public RoomRepository getRoomRepository() {
@@ -91,7 +109,7 @@ public class MainApp extends JFrame {
     public UserRepository getUserRepository() {
         return userRepository;
     }
-    
+
     /**
      * Returns the reservation repository.
      *
