@@ -29,7 +29,6 @@ public class LoginScreen extends JPanel {
     private JPasswordField passwordField;
     private JTextField displayNameField;
     private JLabel statusLabel;
-    private JPanel adminPanel;
     private JPanel userPanel;
     private JRadioButton adminRadio;
     private JRadioButton userRadio;
@@ -127,7 +126,7 @@ public class LoginScreen extends JPanel {
         gbc.gridy = 1;
         center.add(radioPanel, gbc);
 
-        adminPanel = new JPanel(new GridBagLayout());
+        JPanel adminPanel = new JPanel(new GridBagLayout());
         adminPanel.setBackground(new Color(255, 248, 249));
         adminPanel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(PINK, 2),
