@@ -21,12 +21,17 @@ public class AdminPanelScreen extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
+    private static final String FONT_NAME = "Arial";
+
     private static final Color BLUE      = new Color(66, 165, 245);
     private static final Color YELLOW    = new Color(253, 216, 53);
     private static final Color GREEN     = new Color(102, 187, 106);
     private static final Color PINK      = new Color(244, 143, 177);
     private static final Color BG        = new Color(248, 251, 255);
     private static final Color DARK_BLUE = new Color(13, 71, 161);
+    private static final Color SUCCESS_GREEN = new Color(27, 94, 32);
+    private static final Color ERROR_PINK = new Color(136, 14, 79);
+    private static final Color TABLE_SELECTION_BLUE = new Color(227, 242, 253);
 
     private transient AdminReservationService adminService;
     private transient ReservationService reservationService;
@@ -91,11 +96,11 @@ public class AdminPanelScreen extends JPanel {
         header.setBorder(BorderFactory.createEmptyBorder(14, 20, 14, 20));
 
         JLabel title = new JLabel("⚙️ Admin Panel");
-        title.setFont(new Font("Arial", Font.BOLD, 16));
+        title.setFont(new Font(FONT_NAME, Font.BOLD, 16));
         title.setForeground(DARK_BLUE);
 
         JLabel adminLabel = new JLabel("👤 " + adminUsername);
-        adminLabel.setFont(new Font("Arial", Font.PLAIN, 13));
+        adminLabel.setFont(new Font(FONT_NAME, Font.PLAIN, 13));
         adminLabel.setForeground(DARK_BLUE);
 
         header.add(title, BorderLayout.WEST);
@@ -122,12 +127,12 @@ public class AdminPanelScreen extends JPanel {
         };
 
         JTable table = new JTable(tableModel);
-        table.setFont(new Font("Arial", Font.PLAIN, 12));
+        table.setFont(new Font(FONT_NAME, Font.PLAIN, 12));
         table.setRowHeight(24);
-        table.getTableHeader().setFont(new Font("Arial", Font.BOLD, 12));
+        table.getTableHeader().setFont(new Font(FONT_NAME, Font.BOLD, 12));
         table.getTableHeader().setBackground(BLUE);
         table.getTableHeader().setForeground(Color.WHITE);
-        table.setSelectionBackground(new Color(227, 242, 253));
+        table.setSelectionBackground(TABLE_SELECTION_BLUE);
         table.setSelectionForeground(DARK_BLUE);
 
         table.getSelectionModel().addListSelectionListener(event -> {
@@ -158,7 +163,7 @@ public class AdminPanelScreen extends JPanel {
         gbc.gridwidth = 2;
 
         JLabel infoLabel = new JLabel("🔐 Select a reservation from the table or enter ID manually");
-        infoLabel.setFont(new Font("Arial", Font.ITALIC, 12));
+        infoLabel.setFont(new Font(FONT_NAME, Font.ITALIC, 12));
         infoLabel.setForeground(BLUE);
         form.add(infoLabel, gbc);
 
@@ -216,7 +221,7 @@ public class AdminPanelScreen extends JPanel {
         add(centerPanel, BorderLayout.CENTER);
 
         statusLabel = new JLabel(" ");
-        statusLabel.setFont(new Font("Arial", Font.BOLD, 13));
+        statusLabel.setFont(new Font(FONT_NAME, Font.BOLD, 13));
         statusLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
@@ -224,16 +229,16 @@ public class AdminPanelScreen extends JPanel {
 
         JButton modifyBtn = new JButton("✅ Modify");
         modifyBtn.setBackground(GREEN);
-        modifyBtn.setForeground(new Color(27, 94, 32));
-        modifyBtn.setFont(new Font("Arial", Font.BOLD, 13));
+        modifyBtn.setForeground(SUCCESS_GREEN);
+        modifyBtn.setFont(new Font(FONT_NAME, Font.BOLD, 13));
         modifyBtn.setFocusPainted(false);
         modifyBtn.setBorderPainted(false);
         modifyBtn.addActionListener(event -> handleModify());
 
         JButton cancelBtn = new JButton("❌ Cancel Reservation");
         cancelBtn.setBackground(PINK);
-        cancelBtn.setForeground(new Color(136, 14, 79));
-        cancelBtn.setFont(new Font("Arial", Font.BOLD, 13));
+        cancelBtn.setForeground(ERROR_PINK);
+        cancelBtn.setFont(new Font(FONT_NAME, Font.BOLD, 13));
         cancelBtn.setFocusPainted(false);
         cancelBtn.setBorderPainted(false);
         cancelBtn.addActionListener(event -> handleCancel());
@@ -241,7 +246,7 @@ public class AdminPanelScreen extends JPanel {
         JButton refreshBtn = new JButton("🔄 Refresh");
         refreshBtn.setBackground(BLUE);
         refreshBtn.setForeground(Color.WHITE);
-        refreshBtn.setFont(new Font("Arial", Font.BOLD, 13));
+        refreshBtn.setFont(new Font(FONT_NAME, Font.BOLD, 13));
         refreshBtn.setFocusPainted(false);
         refreshBtn.setBorderPainted(false);
         refreshBtn.addActionListener(event -> {
@@ -295,7 +300,7 @@ public class AdminPanelScreen extends JPanel {
      */
     private void addLabel(JPanel panel, GridBagConstraints gbc, String text) {
         JLabel label = new JLabel(text);
-        label.setFont(new Font("Arial", Font.BOLD, 13));
+        label.setFont(new Font(FONT_NAME, Font.BOLD, 13));
         label.setForeground(DARK_BLUE);
         panel.add(label, gbc);
     }
@@ -306,7 +311,7 @@ public class AdminPanelScreen extends JPanel {
      * @param field the text field to style
      */
     private void styleField(JTextField field) {
-        field.setFont(new Font("Arial", Font.PLAIN, 13));
+        field.setFont(new Font(FONT_NAME, Font.PLAIN, 13));
         field.setBorder(BorderFactory.createLineBorder(BLUE, 2));
     }
 
@@ -384,7 +389,7 @@ public class AdminPanelScreen extends JPanel {
      * @param message success message
      */
     private void showSuccess(String message) {
-        statusLabel.setForeground(new Color(27, 94, 32));
+        statusLabel.setForeground(SUCCESS_GREEN);
         statusLabel.setText(message);
     }
 
@@ -394,7 +399,7 @@ public class AdminPanelScreen extends JPanel {
      * @param message error message
      */
     private void showError(String message) {
-        statusLabel.setForeground(new Color(136, 14, 79));
+        statusLabel.setForeground(ERROR_PINK);
         statusLabel.setText(message);
     }
 }
