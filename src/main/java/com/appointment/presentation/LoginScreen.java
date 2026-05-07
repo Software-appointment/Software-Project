@@ -1,6 +1,7 @@
 package com.appointment.presentation;
 
 import com.appointment.service.AuthService;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -12,6 +13,8 @@ import java.awt.*;
  */
 public class LoginScreen extends JPanel {
 
+    private static final long serialVersionUID = 1L;
+
     private static final Color BLUE      = new Color(66, 165, 245);
     private static final Color YELLOW    = new Color(253, 216, 53);
     private static final Color GREEN     = new Color(102, 187, 106);
@@ -19,16 +22,17 @@ public class LoginScreen extends JPanel {
     private static final Color BG        = new Color(248, 251, 255);
     private static final Color DARK_BLUE = new Color(13, 71, 161);
 
-    private AuthService authService;
+    private transient AuthService authService;
+    private transient MainApp mainApp;
+
     private JTextField usernameField;
     private JPasswordField passwordField;
-    private JTextField userNameField;
+    private JTextField displayNameField;
     private JLabel statusLabel;
     private JPanel adminPanel;
     private JPanel userPanel;
     private JRadioButton adminRadio;
     private JRadioButton userRadio;
-    private MainApp mainApp;
 
     /**
      * Constructor for LoginScreen.
@@ -38,7 +42,8 @@ public class LoginScreen extends JPanel {
      */
     public LoginScreen(AuthService authService, MainApp mainApp) {
         this.authService = authService;
-        this.mainApp     = mainApp;
+        this.mainApp = mainApp;
+
         setBackground(BG);
         setLayout(new BorderLayout());
         buildUI();
@@ -48,40 +53,44 @@ public class LoginScreen extends JPanel {
      * Builds the UI components.
      */
     private void buildUI() {
-        // Header
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(BLUE);
         header.setBorder(BorderFactory.createEmptyBorder(20, 24, 20, 24));
+
         JLabel title = new JLabel("Meeting Room Reservation System");
         title.setFont(new Font("Arial", Font.BOLD, 20));
         title.setForeground(Color.WHITE);
+
         JLabel sub = new JLabel("Please select your role to login");
         sub.setFont(new Font("Arial", Font.PLAIN, 14));
         sub.setForeground(new Color(227, 242, 253));
+
         JPanel titlePanel = new JPanel(new GridLayout(2, 1));
         titlePanel.setBackground(BLUE);
         titlePanel.add(title);
         titlePanel.add(sub);
+
         header.add(titlePanel, BorderLayout.WEST);
         add(header, BorderLayout.NORTH);
 
-        // Center
         JPanel center = new JPanel(new GridBagLayout());
         center.setBackground(BG);
         center.setBorder(BorderFactory.createEmptyBorder(20, 60, 10, 60));
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 8, 10, 8);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Role label
-        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+
         JLabel roleLabel = new JLabel("Login as:");
         roleLabel.setFont(new Font("Arial", Font.BOLD, 15));
         roleLabel.setForeground(DARK_BLUE);
         roleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         center.add(roleLabel, gbc);
 
-        // Radio buttons
         adminRadio = new JRadioButton("Administrator");
         adminRadio.setFont(new Font("Arial", Font.BOLD, 15));
         adminRadio.setForeground(new Color(136, 14, 79));
@@ -118,17 +127,24 @@ public class LoginScreen extends JPanel {
         gbc.gridy = 1;
         center.add(radioPanel, gbc);
 
-        // Admin panel
         adminPanel = new JPanel(new GridBagLayout());
         adminPanel.setBackground(new Color(255, 248, 249));
         adminPanel.setBorder(BorderFactory.createTitledBorder(
-            BorderFactory.createLineBorder(PINK, 2), "Administrator Login",
-            0, 0, new Font("Arial", Font.BOLD, 13), new Color(136, 14, 79)));
+                BorderFactory.createLineBorder(PINK, 2),
+                "Administrator Login",
+                0,
+                0,
+                new Font("Arial", Font.BOLD, 13),
+                new Color(136, 14, 79)
+        ));
+
         GridBagConstraints agbc = new GridBagConstraints();
         agbc.insets = new Insets(8, 12, 8, 12);
         agbc.fill = GridBagConstraints.HORIZONTAL;
 
-        agbc.gridx = 0; agbc.gridy = 0;
+        agbc.gridx = 0;
+        agbc.gridy = 0;
+
         JLabel userLabel = new JLabel("Username:");
         userLabel.setFont(new Font("Arial", Font.BOLD, 14));
         userLabel.setForeground(DARK_BLUE);
@@ -141,7 +157,9 @@ public class LoginScreen extends JPanel {
         usernameField.setBorder(BorderFactory.createLineBorder(YELLOW, 2));
         adminPanel.add(usernameField, agbc);
 
-        agbc.gridx = 0; agbc.gridy = 1;
+        agbc.gridx = 0;
+        agbc.gridy = 1;
+
         JLabel passLabel = new JLabel("Password:");
         passLabel.setFont(new Font("Arial", Font.BOLD, 14));
         passLabel.setForeground(DARK_BLUE);
@@ -154,48 +172,56 @@ public class LoginScreen extends JPanel {
         passwordField.setBorder(BorderFactory.createLineBorder(YELLOW, 2));
         adminPanel.add(passwordField, agbc);
 
-        // User panel
         userPanel = new JPanel(new GridBagLayout());
         userPanel.setBackground(new Color(241, 248, 241));
         userPanel.setBorder(BorderFactory.createTitledBorder(
-            BorderFactory.createLineBorder(GREEN, 2), "User Login",
-            0, 0, new Font("Arial", Font.BOLD, 13), new Color(27, 94, 32)));
+                BorderFactory.createLineBorder(GREEN, 2),
+                "User Login",
+                0,
+                0,
+                new Font("Arial", Font.BOLD, 13),
+                new Color(27, 94, 32)
+        ));
+
         GridBagConstraints ugbc = new GridBagConstraints();
         ugbc.insets = new Insets(8, 12, 8, 12);
         ugbc.fill = GridBagConstraints.HORIZONTAL;
 
-        ugbc.gridx = 0; ugbc.gridy = 0;
+        ugbc.gridx = 0;
+        ugbc.gridy = 0;
+
         JLabel nameLabel = new JLabel("Your Name:");
         nameLabel.setFont(new Font("Arial", Font.BOLD, 14));
         nameLabel.setForeground(DARK_BLUE);
         userPanel.add(nameLabel, ugbc);
 
         ugbc.gridx = 1;
-        userNameField = new JTextField(18);
-        userNameField.setFont(new Font("Arial", Font.PLAIN, 14));
-        userNameField.setPreferredSize(new Dimension(200, 36));
-        userNameField.setBorder(BorderFactory.createLineBorder(GREEN, 2));
-        userPanel.add(userNameField, ugbc);
+        displayNameField = new JTextField(18);
+        displayNameField.setFont(new Font("Arial", Font.PLAIN, 14));
+        displayNameField.setPreferredSize(new Dimension(200, 36));
+        displayNameField.setBorder(BorderFactory.createLineBorder(GREEN, 2));
+        userPanel.add(displayNameField, ugbc);
 
-        gbc.gridy = 2; gbc.gridwidth = 2;
+        gbc.gridy = 2;
+        gbc.gridwidth = 2;
         center.add(adminPanel, gbc);
 
         gbc.gridy = 3;
         center.add(userPanel, gbc);
-        userPanel.setVisible(false);
 
+        userPanel.setVisible(false);
         add(center, BorderLayout.CENTER);
 
-        adminRadio.addActionListener(e -> {
+        adminRadio.addActionListener(event -> {
             adminPanel.setVisible(true);
             userPanel.setVisible(false);
         });
-        userRadio.addActionListener(e -> {
+
+        userRadio.addActionListener(event -> {
             adminPanel.setVisible(false);
             userPanel.setVisible(true);
         });
 
-        // Bottom
         JPanel bottom = new JPanel(new BorderLayout());
         bottom.setBackground(BG);
         bottom.setBorder(BorderFactory.createEmptyBorder(0, 60, 24, 60));
@@ -212,7 +238,7 @@ public class LoginScreen extends JPanel {
         loginBtn.setFocusPainted(false);
         loginBtn.setBorderPainted(false);
         loginBtn.setPreferredSize(new Dimension(0, 45));
-        loginBtn.addActionListener(e -> handleLogin());
+        loginBtn.addActionListener(event -> handleLogin());
 
         bottom.add(statusLabel, BorderLayout.NORTH);
         bottom.add(loginBtn, BorderLayout.CENTER);
@@ -226,10 +252,12 @@ public class LoginScreen extends JPanel {
         if (adminRadio.isSelected()) {
             String username = usernameField.getText().trim();
             String password = new String(passwordField.getPassword()).trim();
+
             if (username.isEmpty() || password.isEmpty()) {
                 statusLabel.setText("Please enter username and password.");
                 return;
             }
+
             if (authService.login(username, password)) {
                 mainApp.showDashboard(username, true);
             } else {
@@ -237,12 +265,14 @@ public class LoginScreen extends JPanel {
                 passwordField.setText("");
             }
         } else {
-            String name = userNameField.getText().trim();
-            if (name.isEmpty()) {
+            String displayName = displayNameField.getText().trim();
+
+            if (displayName.isEmpty()) {
                 statusLabel.setText("Please enter your name.");
                 return;
             }
-            mainApp.showDashboard(name, false);
+
+            mainApp.showDashboard(displayName, false);
         }
     }
 }
