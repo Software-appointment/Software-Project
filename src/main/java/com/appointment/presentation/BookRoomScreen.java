@@ -42,10 +42,10 @@ public class BookRoomScreen extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Color BLUE      = new Color(66, 165, 245);
-    private static final Color YELLOW    = new Color(253, 216, 53);
-    private static final Color GREEN     = new Color(102, 187, 106);
-    private static final Color BG        = new Color(248, 251, 255);
+    private static final Color BLUE = new Color(66, 165, 245);
+    private static final Color YELLOW = new Color(253, 216, 53);
+    private static final Color GREEN = new Color(102, 187, 106);
+    private static final Color BG = new Color(248, 251, 255);
     private static final Color DARK_BLUE = new Color(13, 71, 161);
     private static final Color SUCCESS_GREEN = new Color(27, 94, 32);
     private static final Color ERROR_PINK = new Color(136, 14, 79);
@@ -53,7 +53,6 @@ public class BookRoomScreen extends JPanel {
     private static final Color CATERING_BG = new Color(255, 248, 225);
 
     private transient ReservationService reservationService;
-    private transient RoomService roomService;
 
     private String username;
     private JTextField userNameField;
@@ -78,7 +77,6 @@ public class BookRoomScreen extends JPanel {
                           RoomService roomService,
                           String username) {
         this.reservationService = reservationService;
-        this.roomService = roomService;
         this.username = username;
 
         setBackground(BG);
