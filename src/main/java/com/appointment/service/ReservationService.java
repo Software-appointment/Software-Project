@@ -2,6 +2,7 @@ package com.appointment.service;
 
 import com.appointment.domain.GroupReservation;
 import com.appointment.domain.Reservation;
+import com.appointment.domain.TimeSlot;
 import com.appointment.domain.User;
 import com.appointment.domain.VirtualReservation;
 import com.appointment.repository.ReservationRepository;
@@ -11,8 +12,10 @@ import com.appointment.rules.DurationRule;
 import com.appointment.rules.EquipmentAvailabilityRule;
 import com.appointment.rules.GroupMinParticipantsRule;
 import com.appointment.rules.VirtualEquipmentRule;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Service responsible for managing reservations.
@@ -23,11 +26,15 @@ import java.util.List;
  */
 public class ReservationService {
 
+    private static final String STATUS_CONFIRMED = "Confirmed";
+    private static final String STATUS_CANCELLED = "Cancelled";
+    private static final String STATUS_COMPLETED = "Completed";
+
     /** Repository for storing reservations. */
-    private ReservationRepository reservationRepository;
+    private final ReservationRepository reservationRepository;
 
     /** Service for sending notifications. */
-    private NotificationService notificationService;
+    private final NotificationService notificationService;
 
     /**
      * Constructor to create ReservationService.
@@ -38,12 +45,12 @@ public class ReservationService {
     public ReservationService(ReservationRepository reservationRepository,
                               NotificationService notificationService) {
         this.reservationRepository = reservationRepository;
-        this.notificationService   = notificationService;
+        this.notificationService = notificationService;
     }
 
     /**
      * Books a reservation after validating all booking rules.
-     * Applies type-specific rules based on reservation type (polymorphic dispatch).
+     * Applies type-specific rules based on reservation type.
      * Triggers a notification after successful booking.
      *
      * @param reservation the reservation to book
@@ -54,12 +61,13 @@ public class ReservationService {
         List<BookingRuleStrategy> rules = new ArrayList<>();
         rules.add(new CapacityRule(reservation.getParticipantCount()));
         rules.add(new DurationRule());
-        rules.add(new EquipmentAvailabilityRule(reservation.getRoom().getAvailableEquipment()
-                .stream()
-                .map(e -> e.getEquipmentName())
-                .collect(java.util.stream.Collectors.toList())));
+        rules.add(new EquipmentAvailabilityRule(
+                reservation.getRoom().getAvailableEquipment()
+                        .stream()
+                        .map(equipment -> equipment.getEquipmentName())
+                        .collect(Collectors.toList())
+        ));
 
-        // Polymorphic dispatch — apply type-specific rules
         if (reservation instanceof GroupReservation) {
             rules.add(new GroupMinParticipantsRule());
         } else if (reservation instanceof VirtualReservation) {
@@ -69,17 +77,19 @@ public class ReservationService {
         for (BookingRuleStrategy rule : rules) {
             if (!rule.isValid(reservation)) {
                 throw new IllegalArgumentException(
-                    "Booking rule failed: " + rule.getClass().getSimpleName()
+                        "Booking rule failed: " + rule.getClass().getSimpleName()
                 );
             }
         }
 
-        reservation.setStatus("Confirmed");
+        reservation.setStatus(STATUS_CONFIRMED);
         reservationRepository.save(reservation);
 
-        notificationService.notifyObservers(user,
-            "Reminder: Your reservation is confirmed for " + reservation.getDate()
-            + " at " + reservation.getTime());
+        notificationService.notifyObservers(
+                user,
+                "Reminder: Your reservation is confirmed for " + reservation.getDate()
+                        + " at " + reservation.getTime()
+        );
 
         return reservation;
     }
@@ -97,9 +107,9 @@ public class ReservationService {
      * Modifies an existing future reservation.
      *
      * @param reservationId the ID of the reservation to modify
-     * @param newDate new date (or null to keep existing)
-     * @param newTime new time (or null to keep existing)
-     * @param newDuration new duration in minutes (-1 to keep existing)
+     * @param newDate new date, or null to keep existing
+     * @param newTime new time, or null to keep existing
+     * @param newDuration new duration in minutes, or -1 to keep existing
      * @return the updated reservation
      */
     public Reservation modify(String reservationId, String newDate,
@@ -110,16 +120,24 @@ public class ReservationService {
             throw new IllegalArgumentException("Reservation not found: " + reservationId);
         }
 
-        if (reservation.getStatus().equals("Cancelled") ||
-            reservation.getStatus().equals("Completed")) {
+        if (STATUS_CANCELLED.equals(reservation.getStatus())
+                || STATUS_COMPLETED.equals(reservation.getStatus())) {
             throw new IllegalArgumentException(
-                "Cannot modify a " + reservation.getStatus() + " reservation"
+                    "Cannot modify a " + reservation.getStatus() + " reservation"
             );
         }
 
-        if (newDate != null) reservation.setDate(newDate);
-        if (newTime != null) reservation.setTime(newTime);
-        if (newDuration != -1) reservation.setDuration(newDuration);
+        if (newDate != null) {
+            reservation.setDate(newDate);
+        }
+
+        if (newTime != null) {
+            reservation.setTime(newTime);
+        }
+
+        if (newDuration != -1) {
+            reservation.setDuration(newDuration);
+        }
 
         reservationRepository.update(reservation);
         return reservation;
@@ -131,23 +149,22 @@ public class ReservationService {
      * @param reservationId the ID of the reservation to cancel
      * @param timeSlot the time slot to free after cancellation
      */
-    public void cancel(String reservationId,
-                       com.appointment.domain.TimeSlot timeSlot) {
+    public void cancel(String reservationId, TimeSlot timeSlot) {
         Reservation reservation = reservationRepository.findById(reservationId);
 
         if (reservation == null) {
             throw new IllegalArgumentException("Reservation not found: " + reservationId);
         }
 
-        if (reservation.getStatus().equals("Cancelled")) {
+        if (STATUS_CANCELLED.equals(reservation.getStatus())) {
             throw new IllegalArgumentException("Reservation is already cancelled");
         }
 
-        if (reservation.getStatus().equals("Completed")) {
+        if (STATUS_COMPLETED.equals(reservation.getStatus())) {
             throw new IllegalArgumentException("Cannot cancel a completed reservation");
         }
 
-        reservation.setStatus("Cancelled");
+        reservation.setStatus(STATUS_CANCELLED);
         reservationRepository.update(reservation);
         timeSlot.setAvailable(true);
     }
