@@ -9,9 +9,6 @@ package com.appointment.domain;
  */
 public class GroupReservation extends Reservation {
 
-    /** Number of participants in the group. */
-    private int participantCount;
-
     /**
      * Constructs a GroupReservation.
      *
@@ -22,9 +19,9 @@ public class GroupReservation extends Reservation {
      * @param room the meeting room
      * @param participantCount number of participants
      */
-    public GroupReservation(String reservationId, String date, String time, int duration, MeetingRoom room, int participantCount) {
+    public GroupReservation(String reservationId, String date, String time,
+                            int duration, MeetingRoom room, int participantCount) {
         super(reservationId, date, time, duration, room);
-        this.participantCount = participantCount;
         setParticipantCount(participantCount);
     }
 
