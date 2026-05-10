@@ -1,9 +1,26 @@
 package com.appointment.repository;
 
-import com.appointment.domain.*;
-import java.io.*;
+import com.appointment.domain.AssessmentReservation;
+import com.appointment.domain.Equipment;
+import com.appointment.domain.FollowUpReservation;
+import com.appointment.domain.GroupReservation;
+import com.appointment.domain.IndividualReservation;
+import com.appointment.domain.InPersonReservation;
+import com.appointment.domain.MeetingRoom;
+import com.appointment.domain.Reservation;
+import com.appointment.domain.UrgentReservation;
+import com.appointment.domain.VirtualReservation;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * File-backed repository for storing and retrieving reservations.
@@ -14,11 +31,14 @@ import java.util.List;
  */
 public class ReservationRepository {
 
-    /** In-memory list of all reservations. */
-    private LinkedList<Reservation> reservations;
+    private static final Logger LOGGER =
+            Logger.getLogger(ReservationRepository.class.getName());
 
     /** File path for persistent storage. */
     private static final String FILE_PATH = "reservations.txt";
+
+    /** In-memory list of all reservations. */
+    private LinkedList<Reservation> reservations;
 
     /**
      * Constructs a new ReservationRepository and loads data from file.
@@ -45,9 +65,9 @@ public class ReservationRepository {
      * @return the matching Reservation, or null if not found
      */
     public Reservation findById(String reservationId) {
-        for (Reservation r : reservations) {
-            if (r.getReservationId().equals(reservationId)) {
-                return r;
+        for (Reservation reservation : reservations) {
+            if (reservation.getReservationId().equals(reservationId)) {
+                return reservation;
             }
         }
         return null;
@@ -70,11 +90,13 @@ public class ReservationRepository {
      */
     public boolean delete(String reservationId) {
         Reservation toDelete = findById(reservationId);
+
         if (toDelete != null) {
             reservations.remove(toDelete);
             saveToFile();
             return true;
         }
+
         return false;
     }
 
@@ -93,6 +115,7 @@ public class ReservationRepository {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -102,22 +125,22 @@ public class ReservationRepository {
      */
     private void saveToFile() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH))) {
-            for (Reservation r : reservations) {
+            for (Reservation reservation : reservations) {
                 writer.write(
-                    r.getReservationId() + "|" +
-                    r.getDate() + "|" +
-                    r.getTime() + "|" +
-                    r.getDuration() + "|" +
-                    r.getRoom().getRoomName() + "|" +
-                    r.getType() + "|" +
-                    r.getStatus() + "|" +
-                    (r.getUserName()  != null ? r.getUserName()  : "-") + "|" +
-                    (r.getUserEmail() != null ? r.getUserEmail() : "-")
+                        reservation.getReservationId() + "|"
+                                + reservation.getDate() + "|"
+                                + reservation.getTime() + "|"
+                                + reservation.getDuration() + "|"
+                                + reservation.getRoom().getRoomName() + "|"
+                                + reservation.getType() + "|"
+                                + reservation.getStatus() + "|"
+                                + getSafeText(reservation.getUserName()) + "|"
+                                + getSafeText(reservation.getUserEmail())
                 );
                 writer.newLine();
             }
-        } catch (IOException e) {
-            System.err.println("Error saving reservations: " + e.getMessage());
+        } catch (IOException exception) {
+            LOGGER.log(Level.SEVERE, "Error saving reservations", exception);
         }
     }
 
@@ -126,49 +149,111 @@ public class ReservationRepository {
      */
     private void loadFromFile() {
         File file = new File(FILE_PATH);
-        if (!file.exists()) return;
+
+        if (!file.exists()) {
+            return;
+        }
 
         try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
             String line;
+
             while ((line = reader.readLine()) != null) {
-                String[] parts = line.split("\\|");
-                if (parts.length < 7) continue;
-
-                String id       = parts[0];
-                String date     = parts[1];
-                String time     = parts[2];
-                int duration    = Integer.parseInt(parts[3]);
-                String roomName = parts[4];
-                String type     = parts[5];
-                String status   = parts[6];
-                String userName  = parts.length > 7 ? parts[7] : "-";
-                String userEmail = parts.length > 8 ? parts[8] : "-";
-
-                List<Equipment> equipment = new java.util.ArrayList<>();
-                if (roomName.equals("Virtual Room")) {
-                    equipment.add(new Equipment("E2", "Video Conference System", true));
-                }
-                MeetingRoom room = new MeetingRoom("R1", roomName, 10, "Medium", equipment);
-
-                Reservation reservation;
-                switch (type.toUpperCase()) {
-                    case "GROUP":      reservation = new GroupReservation(id, date, time, duration, room, 2); break;
-                    case "VIRTUAL":    reservation = new VirtualReservation(id, date, time, duration, room); break;
-                    case "INPERSON":
-                    case "IN_PERSON":  reservation = new InPersonReservation(id, date, time, duration, room); break;
-                    case "URGENT":     reservation = new UrgentReservation(id, date, time, duration, room); break;
-                    case "FOLLOWUP":
-                    case "FOLLOW_UP":  reservation = new FollowUpReservation(id, date, time, duration, room); break;
-                    case "ASSESSMENT": reservation = new AssessmentReservation(id, date, time, duration, room); break;
-                    default:           reservation = new IndividualReservation(id, date, time, duration, room); break;
-                }
-                reservation.setStatus(status);
-                reservation.setUserName(userName);
-                reservation.setUserEmail(userEmail);
-                reservations.add(reservation);
+                loadReservationLine(line);
             }
-        } catch (IOException e) {
-            System.err.println("Error loading reservations: " + e.getMessage());
+        } catch (IOException exception) {
+            LOGGER.log(Level.SEVERE, "Error loading reservations", exception);
         }
+    }
+
+    /**
+     * Loads one reservation line from the file.
+     *
+     * @param line reservation line from file
+     */
+    private void loadReservationLine(String line) {
+        String[] parts = line.split("\\|");
+
+        if (parts.length < 7) {
+            return;
+        }
+
+        String id = parts[0];
+        String date = parts[1];
+        String time = parts[2];
+        int duration = Integer.parseInt(parts[3]);
+        String roomName = parts[4];
+        String type = parts[5];
+        String status = parts[6];
+        String userName = parts.length > 7 ? parts[7] : "-";
+        String userEmail = parts.length > 8 ? parts[8] : "-";
+
+        MeetingRoom room = createRoom(roomName);
+        Reservation reservation = createReservation(type, id, date, time, duration, room);
+
+        reservation.setStatus(status);
+        reservation.setUserName(userName);
+        reservation.setUserEmail(userEmail);
+
+        reservations.add(reservation);
+    }
+
+    /**
+     * Creates a meeting room object while loading from file.
+     *
+     * @param roomName room name
+     * @return meeting room
+     */
+    private MeetingRoom createRoom(String roomName) {
+        List<Equipment> equipment = new java.util.ArrayList<>();
+
+        if ("Virtual Room".equals(roomName)) {
+            equipment.add(new Equipment("E2", "Video Conference System", true));
+        }
+
+        return new MeetingRoom("R1", roomName, 10, "Medium", equipment);
+    }
+
+    /**
+     * Creates the correct reservation subtype.
+     *
+     * @param type reservation type
+     * @param id reservation id
+     * @param date reservation date
+     * @param time reservation time
+     * @param duration reservation duration
+     * @param room meeting room
+     * @return reservation object
+     */
+    private Reservation createReservation(String type, String id, String date,
+                                          String time, int duration,
+                                          MeetingRoom room) {
+        switch (type.toUpperCase()) {
+            case "GROUP":
+                return new GroupReservation(id, date, time, duration, room, 2);
+            case "VIRTUAL":
+                return new VirtualReservation(id, date, time, duration, room);
+            case "INPERSON":
+            case "IN_PERSON":
+                return new InPersonReservation(id, date, time, duration, room);
+            case "URGENT":
+                return new UrgentReservation(id, date, time, duration, room);
+            case "FOLLOWUP":
+            case "FOLLOW_UP":
+                return new FollowUpReservation(id, date, time, duration, room);
+            case "ASSESSMENT":
+                return new AssessmentReservation(id, date, time, duration, room);
+            default:
+                return new IndividualReservation(id, date, time, duration, room);
+        }
+    }
+
+    /**
+     * Returns a safe text value for file saving.
+     *
+     * @param value text value
+     * @return value or dash if null
+     */
+    private String getSafeText(String value) {
+        return value != null ? value : "-";
     }
 }
